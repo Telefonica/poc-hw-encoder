@@ -1,40 +1,24 @@
 package com.telefonica.myapplication2;
 
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.majorkernelpanic.streaming.MediaStream;
 import net.majorkernelpanic.streaming.audio.AudioQuality;
 import net.majorkernelpanic.streaming.gl.SurfaceView;
-import net.majorkernelpanic.streaming.rtsp.RtspClient;
 import net.majorkernelpanic.streaming.video.VideoQuality;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.hardware.Camera.CameraInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 /**
  * A straightforward example of how to stream AMR and H.263 to some public IP using libstreaming.
@@ -44,36 +28,37 @@ public class MainActivity extends Activity implements OnClickListener, Session.C
 
     private final static String TAG = "MainActivity";
 
-    private Button mButton1, mButton2;
+    private Button mButton1;
     private SurfaceView mSurfaceView;
     private EditText mEditText;
     private Session mSession;
+    private TextView mTextBitrate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mButton1 = (Button) findViewById(R.id.button1);
-        mButton2 = (Button) findViewById(R.id.button2);
         mSurfaceView = (SurfaceView) findViewById(R.id.surface);
         mEditText = (EditText) findViewById(R.id.editText1);
+        mTextBitrate = (TextView) findViewById(R.id.bitrate);
 
+        // Configures the SessionBuilder
         mSession = MySessionBuilder.getInstance()
-                .setCallback(this)
-                .setSurfaceView(mSurfaceView)
-                .setPreviewOrientation(90)
                 .setContext(getApplicationContext())
                 .setAudioEncoder(MySessionBuilder.AUDIO_NONE)
-                .setAudioQuality(new AudioQuality(16000, 32000))
+                .setAudioQuality(new AudioQuality(8000,16000))
                 .setVideoEncoder(MySessionBuilder.VIDEO_H264)
-                .setVideoQuality(new VideoQuality(1280,720,30,3000000))
+                .setSurfaceView(mSurfaceView)
+                .setPreviewOrientation(0)
+                .setCallback(this)
+                .setVideoQuality(new VideoQuality(1280, 720, 30, 3000000))
                 .build();
 
         mButton1.setOnClickListener(this);
-        mButton2.setOnClickListener(this);
 
         mSurfaceView.getHolder().addCallback(this);
 
@@ -114,7 +99,8 @@ public class MainActivity extends Activity implements OnClickListener, Session.C
 
     @Override
     public void onBitrateUpdate(long bitrate) {
-        Log.d(TAG,"Bitrate: "+bitrate);
+        Log.d(TAG, "Bitrate: " + bitrate);
+        mTextBitrate.setText(""+bitrate/1000+" kbps");
     }
 
     @Override
@@ -128,12 +114,12 @@ public class MainActivity extends Activity implements OnClickListener, Session.C
     @Override
 
     public void onPreviewStarted() {
-        Log.d(TAG,"Preview started.");
+        Log.d(TAG, "Preview started.");
     }
 
     @Override
     public void onSessionConfigured() {
-        Log.d(TAG,"Preview configured.");
+        Log.d(TAG, "Preview configured.");
         // Once the stream is configured, you can get a SDP formated session description
         // that you can send to the receiver of the stream.
         // For example, to receive the stream in VLC, store the session description in a .sdp file
@@ -144,24 +130,27 @@ public class MainActivity extends Activity implements OnClickListener, Session.C
 
     @Override
     public void onSessionStarted() {
-        Log.d(TAG,"Session started.");
+        Log.d(TAG, "Session started.");
         mButton1.setEnabled(true);
         mButton1.setText(R.string.stop);
     }
 
     @Override
     public void onSessionStopped() {
-        Log.d(TAG,"Session stopped.");
+        Log.d(TAG, "Session stopped.");
         mButton1.setEnabled(true);
         mButton1.setText(R.string.start);
     }
 
-    /** Displays a popup to report the eror to the user */
+    /**
+     * Displays a popup to report the eror to the user
+     */
     private void logError(final String msg) {
         final String error = (msg == null) ? "Error unknown" : msg;
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setMessage(error).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {}
+            public void onClick(DialogInterface dialog, int id) {
+            }
         });
         AlertDialog dialog = builder.create();
         dialog.show();

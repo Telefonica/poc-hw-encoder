@@ -23,6 +23,7 @@ package com.telefonica.myapplication2;
 
 import android.graphics.ImageFormat;
 
+import android.hardware.Camera;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
@@ -355,6 +356,7 @@ public class MyH264Stream extends H264VideoStream {
                 }
             }
         }
+
         return null;
     }
 
