@@ -52,9 +52,11 @@ public abstract class H264VideoStream extends MediaStream {
 
 	protected final static String TAG = "H264VideoStream";
 
-	protected static final int IFRAME_INTERVAL = 15;
+	protected static final int IFRAME_INTERVAL = 5;
 	protected static final String MIME_TYPE = "video/avc";
-	protected static final String ENCODER_NAME="OMX.Intel.hw_ve.h264";
+	//protected static final String ENCODER_NAME="OMX.Intel.hw_ve.h264";
+	protected static final int VIDEO_ControlRateConstant = 2;
+	protected static final String ENCODER_NAME="OMX.Exynos.AVC.Encoder";
 
 	protected VideoQuality mRequestedQuality = VideoQuality.DEFAULT_VIDEO_QUALITY.clone();
 	protected VideoQuality mQuality = mRequestedQuality.clone();
@@ -82,6 +84,33 @@ public abstract class H264VideoStream extends MediaStream {
 	 * Don't use this class directly.
 	 */
 	public H264VideoStream() {
+		setCamera(CameraInfo.CAMERA_FACING_FRONT);
+	}
+
+	/**
+	 * Sets the camera that will be used to capture video.
+	 * You can call this method at any time and changes will take effect next time you start the stream.
+	 * @param camera Can be either CameraInfo.CAMERA_FACING_BACK or CameraInfo.CAMERA_FACING_FRONT
+	 */
+	public void setCamera(int camera) {
+		CameraInfo cameraInfo = new CameraInfo();
+		int numberOfCameras = Camera.getNumberOfCameras();
+		for (int i=0;i<numberOfCameras;i++) {
+			Camera.getCameraInfo(i, cameraInfo);
+			if (cameraInfo.facing == camera) {
+				mCameraId = i;
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Returns the id of the camera currently selected.
+	 * Can be either {@link CameraInfo#CAMERA_FACING_BACK} or
+	 * {@link CameraInfo#CAMERA_FACING_FRONT}.
+	 */
+	public int getCamera() {
+		return mCameraId;
 	}
 
 
@@ -238,6 +267,8 @@ public abstract class H264VideoStream extends MediaStream {
 		createVideoFormat.setInteger(MediaFormat.KEY_BIT_RATE, this.mQuality.bitrate);
 		createVideoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, this.mQuality.framerate);
 		createVideoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
+		createVideoFormat.setInteger("bitrate-mode", VIDEO_ControlRateConstant);
+
 		Log.d("VideoStream", "format: " + createVideoFormat);
 		try {
 			this.mMediaCodec = MediaCodec.createByCodecName(ENCODER_NAME);
@@ -266,7 +297,7 @@ public abstract class H264VideoStream extends MediaStream {
 	 * Opens the camera in a new Looper thread so that the preview callback is not called from the main thread
 	 * If an exception is thrown in this Looper thread, we bring it back into the main thread.
 	 * @throws RuntimeException Might happen if another app is already using the camera.
-	 */
+	 *//*
 	private void openCamera() throws RuntimeException {
 		final Semaphore lock = new Semaphore(0);
 		final RuntimeException[] exception = new RuntimeException[1];
@@ -290,6 +321,34 @@ public abstract class H264VideoStream extends MediaStream {
 						Log.d(TAG, "No front-facing camera found; opening default");
 						mCamera = Camera.open();    // opens first back-facing camera
 					}
+				} catch (RuntimeException e) {
+					exception[0] = e;
+				} finally {
+					lock.release();
+					Looper.loop();
+				}
+			}
+		});
+		mCameraThread.start();
+		lock.acquireUninterruptibly();
+		if (exception[0] != null) throw new CameraInUseException(exception[0].getMessage());
+	}*/
+
+	/**
+	 * Opens the camera in a new Looper thread so that the preview callback is not called from the main thread
+	 * If an exception is thrown in this Looper thread, we bring it back into the main thread.
+	 * @throws RuntimeException Might happen if another app is already using the camera.
+	 */
+	private void openCamera() throws RuntimeException {
+		final Semaphore lock = new Semaphore(0);
+		final RuntimeException[] exception = new RuntimeException[1];
+		mCameraThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Looper.prepare();
+				mCameraLooper = Looper.myLooper();
+				try {
+					mCamera = Camera.open(mCameraId);
 				} catch (RuntimeException e) {
 					exception[0] = e;
 				} finally {

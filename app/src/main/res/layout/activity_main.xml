@@ -26,13 +26,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/start" />
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Swap" />
     </LinearLayout>
 
     <EditText
@@ -45,6 +38,17 @@
         android:ems="10"
         android:gravity="center"
         android:singleLine="true"
-        android:text="192.168.42.200" />
+        android:text="192.168.1.49" />
+
+    <TextView
+        android:id="@+id/bitrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="5dp"
+        android:text="@string/default_bitrate"
+        android:textColor="@android:color/white" />
 
 </RelativeLayout>
