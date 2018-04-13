@@ -140,6 +140,9 @@ public class MyH264Stream extends H264VideoStream {
         createVideoFormat.setInteger(MediaFormat.KEY_BIT_RATE, this.mQuality.bitrate);
         createVideoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, this.mQuality.framerate);
         createVideoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, H264VideoStream.IFRAME_INTERVAL);
+        //createVideoFormat.setInteger("profile",MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
+        //createVideoFormat.setInteger("level", MediaCodecInfo.CodecProfileLevel.AVCLevel31);
+        createVideoFormat.setInteger("bitrate-mode", VIDEO_ControlRateConstant);
 
 
         Log.d(TAG, "format: " + createVideoFormat);

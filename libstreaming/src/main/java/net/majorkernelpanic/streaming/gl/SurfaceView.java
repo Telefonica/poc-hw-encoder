@@ -141,10 +141,11 @@ public class SurfaceView extends android.view.SurfaceView implements Runnable, O
 			long ts = 0, oldts = 0;
 			while (mRunning) {
 				synchronized (mSyncObject) {
-					mSyncObject.wait(2500);
+					if (!mFrameAvailable)
+						mSyncObject.wait(2500);
+
 					if (mFrameAvailable) {
 						mFrameAvailable = false;
-
 						mViewSurfaceManager.makeCurrent();
 						mTextureManager.updateFrame();
 						mTextureManager.drawFrame();

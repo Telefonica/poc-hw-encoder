@@ -41,7 +41,7 @@ public class MainActivityRtspServer extends Activity implements Session.Callback
 
         MySessionBuilder.getInstance().setSurfaceView(this.mSurfaceView)
                 .setPreviewOrientation(0)
-                .setVideoQuality(new VideoQuality(1280, 720, 30, 5000000))
+                .setVideoQuality(new VideoQuality(1280, 720, 30, 3000000))
                 .setContext(getApplicationContext())
                 .setAudioEncoder(0)
                 .setVideoEncoder(1)
