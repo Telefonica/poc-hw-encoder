@@ -54,9 +54,9 @@ public abstract class H264VideoStream extends MediaStream {
 
 	protected static final int IFRAME_INTERVAL = 5;
 	protected static final String MIME_TYPE = "video/avc";
-	//protected static final String ENCODER_NAME="OMX.Intel.hw_ve.h264";
+	protected static final String ENCODER_NAME="OMX.Intel.hw_ve.h264";
 	protected static final int VIDEO_ControlRateConstant = 2;
-	protected static final String ENCODER_NAME="OMX.Exynos.AVC.Encoder";
+	//protected static final String ENCODER_NAME="OMX.Exynos.AVC.Encoder";
 
 	protected VideoQuality mRequestedQuality = VideoQuality.DEFAULT_VIDEO_QUALITY.clone();
 	protected VideoQuality mQuality = mRequestedQuality.clone();
@@ -267,6 +267,8 @@ public abstract class H264VideoStream extends MediaStream {
 		createVideoFormat.setInteger(MediaFormat.KEY_BIT_RATE, this.mQuality.bitrate);
 		createVideoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, this.mQuality.framerate);
 		createVideoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
+		//createVideoFormat.setInteger("profile",MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
+		//createVideoFormat.setInteger("level", MediaCodecInfo.CodecProfileLevel.AVCLevel31);
 		createVideoFormat.setInteger("bitrate-mode", VIDEO_ControlRateConstant);
 
 		Log.d("VideoStream", "format: " + createVideoFormat);
